@@ -1,0 +1,23 @@
+.model small
+.stack 64
+.data
+index dw 6500d
+row db ?
+column db ?
+.code
+MAIN PROC FAR
+mov ax,@data
+mov ds,ax
+call calcrowcol
+mov ah,4ch;exit program
+int 21h
+MAIN ENDP 
+calcrowcol PROC 
+mov ax,index
+mov bx,320d
+div bx
+mov row,al
+mov column,dl    
+ret
+calcrowcol ENDP    
+END MAIN 

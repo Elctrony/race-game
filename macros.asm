@@ -24,3 +24,37 @@ GenerteRnd macro
     mov ah, 2h   
     int 21h   
 endm
+
+
+
+Drawhorizontalpath MACRO ind1,ind3,col
+     mov bx,ind1
+     mov dx,ind3
+     add dx,1d
+     mov al,col
+     repeat:
+     mov di,bx
+     mov cx,trackwidth
+     loop1:
+     stosb
+     add di,319d
+     loop loop1
+     add bx,1d
+     cmp dx,bx
+     JNE repeat
+ENDM Drawhorizontalpath
+//////
+Drawverticalpath MACRO ind1,ind3,col
+     mov bx,ind1
+     mov dx,ind3
+     add dx,320d
+     mov al,col
+     repeat:
+     mov cx,trackwidth
+     mov di,bx
+     rep stosb
+     add bx,320d
+     cmp dx,bx
+     JNE repeat
+ENDM Drawverticalpath
+
