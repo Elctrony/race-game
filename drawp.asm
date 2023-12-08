@@ -82,7 +82,34 @@ add line1y,bx
 RET
 DrawRightDown ENDP
 
+
+DrawDownRight PROC FAR
+
+call CalcLine2Di
+
+
+mov cx,trackwidth
+mov al,color
+loop4:
+   mov es:[di],al
+   add di,320d
+loop loop4
+
+mov cx, trackwidth
+mov al,color
+rep STOSB
+
+mov bx,trackwidth
+add line2x,bx
+add line2y,bx
+
+;mov lastmove,1
+RET
+DrawDownRight ENDP
+
 DrawRight PROC FAR
+
+
 
 call CalcLine1Di
 mov cx,50d
@@ -98,6 +125,8 @@ rep STOSB
 
 add line2x,50d
 
+mov lastmove,1
+
 RET
 DrawRight ENDP
 ;;;;;
@@ -105,6 +134,8 @@ DrawRight ENDP
 
 DrawDown PROC FAR
 
+; cmp lastmove,1
+;    call DrawRightDown
 
 call CalcLine1Di
 mov cx,50d
@@ -126,8 +157,11 @@ loop loop2
 
 add line2y,50d
 
+mov lastmove,2
 RET
 DrawDown ENDP
+
+
 
 
 
@@ -163,6 +197,13 @@ add line2y,trackwidth
 
 
 call DrawRight
+call DrawRightDown
+call DrawDown
+call DrawDownRight
+call DrawRight
+call DrawRight
+call DrawRight
+
 call DrawRightDown
 call DrawDown
 
