@@ -108,7 +108,14 @@ RET
 DrawDownRight ENDP
 
 DrawRight PROC FAR
+jmp l22
+l21:
+    call DrawDownRight
+    mov lastmove,1
 
+l22:    
+   cmp lastmove,2
+       je l21
 
 
 call CalcLine1Di
@@ -134,8 +141,14 @@ DrawRight ENDP
 
 DrawDown PROC FAR
 
-; cmp lastmove,1
-;    call DrawRightDown
+jmp l12
+l11:
+    call DrawRightDown
+    mov lastmove,2
+
+l12:    
+   cmp lastmove,1
+       je l11
 
 call CalcLine1Di
 mov cx,50d
@@ -160,6 +173,56 @@ add line2y,50d
 mov lastmove,2
 RET
 DrawDown ENDP
+
+DrawUp PROC FAR
+
+call CalcLine1Di
+mov cx,50d
+mov al, color
+loop9:
+   mov es:[di],al
+   sub di,320d
+loop loop9
+
+sub line1y,50d
+
+call CalcLine2Di
+mov cx,50d
+mov al,color
+loop10:
+   mov es:[di],al
+   sub di,320d
+loop loop10
+
+sub line2y,50d
+
+mov lastmove,0
+RET
+DrawUp ENDP
+
+
+DrawUpRight PROC FAR
+
+
+call CalcLine1Di
+
+mov cx,trackwidth
+mov al,color
+loop11:
+   mov es:[di],al
+   sub di,320d
+loop loop11
+
+mov cx, trackwidth
+mov al,color
+rep STOSB
+
+mov bx,trackwidth
+add line1x,bx
+sub line2y,bx
+
+RET
+DrawUpRight ENDP
 
 
 
@@ -193,21 +256,19 @@ mov line1x,15d
 mov line1y,15d
 mov line2x,15d
 mov line2y,15d
-add line2y,trackwidth
+add line2x,trackwidth
 
+; call DrawUp
+; call DrawUpRight
+; call DrawRight
+; call DrawRightDown
 
 call DrawRight
-call DrawRightDown
 call DrawDown
-call DrawDownRight
 call DrawRight
 call DrawRight
 call DrawRight
-
-call DrawRightDown
 call DrawDown
-
-;call DrawRightDown
 
 
 MAIN ENDP
