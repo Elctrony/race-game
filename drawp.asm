@@ -1,4 +1,4 @@
-.model small
+                           .model small
 .stack 64
 .data
 rightLimit equ 5
@@ -10,18 +10,18 @@ trackwidth EQU 20
 rectnum EQU 5
 line1x DW 10D
 line1y DW 10D
-line2x DW ? 
-line2y DW ? 
-lastmove db ?  ; 0 top 
+line2x DW 10D
+line2y DW 10D
+lastmove db 10 ; 0 top 
                ; 1 right 
                ; 2 down 
                ; 3 left
 color DB 5h
 fillColor db 7h
-cnt db ?
+cnt db 0
 ; from 1 to 3 and from 2 to 4
 .code
-generateRandom PROC FAR
+generateRandom PROC 
      mov si,200h
      looprand:  ;loop to slow down
 
@@ -50,7 +50,7 @@ CalcLine1Di PROC
 CalcLine1Di ENDP
 
 
-CalcLine2Di PROC FAR
+CalcLine2Di PROC 
    mov ax,line2y
    mov bx,320d
    mul bx
@@ -62,7 +62,7 @@ CalcLine2Di ENDP
 ; ||||||||||| END DI ||||||||||||
 
 
-DrawRightDown PROC FAR
+DrawRightDown PROC 
 
 call CalcLine1Di
 mov bx,di
@@ -77,16 +77,19 @@ loop3:
    add di,320d
 loop loop3
 
-; mov cnt,19d
-; fillLoop:
-;     add bx,320d
-;     mov di,bx
-;     mov cx,20d
-;     mov al,fillColor
-;     rep STOSB
-;     dec cnt
-;     cmp cnt,0
-;     jne fillLoop
+mov cnt,19d
+momoloop:
+    add bx,320d
+    mov di,bx
+    mov cx,20d
+    mov al,fillColor
+    exa:
+      mov es:[di],al
+      inc di
+      loop exa
+    dec cnt
+    cmp cnt,0
+    jg momoloop
 
 mov bx,trackwidth
 add line1x,bx
@@ -97,7 +100,7 @@ RET
 DrawRightDown ENDP
 
 
-DrawDownRight PROC FAR
+DrawDownRight PROC 
 
 call CalcLine2Di
 mov dx,di
@@ -135,7 +138,7 @@ add line2y,bx
 RET
 DrawDownRight ENDP
 
-DrawRight PROC FAR
+DrawRight PROC 
 
 jmp l23
 l21:
@@ -191,7 +194,7 @@ DrawRight ENDP
 ;;;;;
 
 
-DrawDown PROC FAR
+DrawDown PROC 
 
 
 jmp l12
@@ -248,7 +251,7 @@ DrawDown ENDP
 
 
 
-DrawUp PROC FAR
+DrawUp PROC 
 
 jmp l32
 l31:
@@ -298,7 +301,7 @@ RET
 DrawUp ENDP
 
 
-DrawUpRight PROC FAR
+DrawUpRight PROC 
 
 call CalcLine1Di
 mov dx,di
@@ -335,7 +338,7 @@ RET
 DrawUpRight ENDP
 
 
-DrawRightUp PROC FAR
+DrawRightUp PROC 
 
 
 call CalcLine2Di
