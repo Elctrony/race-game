@@ -179,6 +179,7 @@ l12:
 
 
 call CalcLine1Di
+
 mov cx,50d
 mov al, color
 loop1:
@@ -188,13 +189,30 @@ loop loop1
 
 add line1y,50d
 
+
+
 call CalcLine2Di
+mov dx,di
 mov cx,50d
 mov al,color
 loop2:
    mov es:[di],al
    add di,320d
 loop loop2
+
+mov cnt,19d
+lxx:
+    add dx,1d
+    mov di,dx
+    mov cx,50d
+    mov al,fillColor
+   loop2x:
+      mov es:[di],al
+      add di,320d
+      loop loop2x
+    dec cnt
+    cmp cnt,0
+    jne lxx
 
 add line2y,50d
 
@@ -215,12 +233,27 @@ l32:
    cmp lastmove,1
        je l31
 call CalcLine1Di
+mov dx,di
 mov cx,50d
 mov al, color
 loop20:
    mov es:[di],al
    sub di,320d
 loop loop20
+
+mov cnt,19d
+lzz:
+    add dx,1d
+    mov di,dx
+    mov cx,50d
+    mov al,fillColor
+   loop3x:
+      mov es:[di],al
+      sub di,320d
+      loop loop3x
+    dec cnt
+    cmp cnt,0
+    jne lzz
 
 sub line1y,50d
 
