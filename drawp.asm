@@ -17,6 +17,8 @@ lastmove db ?  ; 0 top
                ; 2 down 
                ; 3 left
 color DB 5h
+fillColor db 7h
+cnt db ?
 ; from 1 to 3 and from 2 to 4
 .code
 generateRandom PROC FAR
@@ -108,22 +110,46 @@ RET
 DrawDownRight ENDP
 
 DrawRight PROC FAR
-jmp l22
+
+jmp l23
 l21:
     call DrawDownRight
     mov lastmove,1
+    jmp l23
+l22:   
+    call DrawUpRight
+    mov lastmove,1
+    jmp l23
 
-l22:    
-   cmp lastmove,2
+
+mov lastmove,1
+
+l23:    
+    cmp lastmove,2
        je l21
+    cmp lastmove,0
+       je l22
 
 
 call CalcLine1Di
+mov dx,di
 mov cx,50d
 mov al, color
 rep STOSB
 
 add line1x,50d
+
+mov cnt,19d
+lll:
+    add dx,320d
+    mov di,dx
+    mov cx,50d
+    mov al,fillColor
+    rep STOSB
+    dec cnt
+    cmp cnt,0
+    jne lll
+
 
 call CalcLine2Di
 mov cx,50d
@@ -141,6 +167,7 @@ DrawRight ENDP
 
 DrawDown PROC FAR
 
+
 jmp l12
 l11:
     call DrawRightDown
@@ -149,6 +176,7 @@ l11:
 l12:    
    cmp lastmove,1
        je l11
+
 
 call CalcLine1Di
 mov cx,50d
@@ -174,25 +202,35 @@ mov lastmove,2
 RET
 DrawDown ENDP
 
+
+
 DrawUp PROC FAR
 
+jmp l32
+l31:
+    call DrawRightUp
+    mov lastmove,0
+
+l32:    
+   cmp lastmove,1
+       je l31
 call CalcLine1Di
 mov cx,50d
 mov al, color
-loop9:
+loop20:
    mov es:[di],al
    sub di,320d
-loop loop9
+loop loop20
 
 sub line1y,50d
 
 call CalcLine2Di
 mov cx,50d
 mov al,color
-loop10:
+loop21:
    mov es:[di],al
    sub di,320d
-loop loop10
+loop loop21
 
 sub line2y,50d
 
@@ -203,15 +241,14 @@ DrawUp ENDP
 
 DrawUpRight PROC FAR
 
-
 call CalcLine1Di
 
 mov cx,trackwidth
 mov al,color
-loop11:
+loop110:
    mov es:[di],al
    sub di,320d
-loop loop11
+loop loop110
 
 mov cx, trackwidth
 mov al,color
@@ -219,10 +256,33 @@ rep STOSB
 
 mov bx,trackwidth
 add line1x,bx
-sub line2y,bx
+sub line1y,bx
 
 RET
 DrawUpRight ENDP
+
+
+DrawRightUp PROC FAR
+
+call CalcLine2Di
+
+mov cx, trackwidth
+mov al,color
+rep STOSB
+
+mov cx,trackwidth
+mov al,color
+loop120:
+   mov es:[di],al
+   sub di,320d
+loop loop120
+mov bx,trackwidth
+add line2x,bx
+sub line2y,bx
+
+RET
+DrawRightUp ENDP
+
 
 
 
@@ -253,22 +313,22 @@ rep STOSB
 
 
 mov line1x,15d
-mov line1y,15d
+mov line1y,85d
 mov line2x,15d
-mov line2y,15d
+mov line2y,85d
 add line2x,trackwidth
 
-; call DrawUp
-; call DrawUpRight
-; call DrawRight
-; call DrawRightDown
+call DrawUp
+call DrawRight
+call DrawDown
+call DrawRight
+call DrawUp
+call DrawRight
+call DrawDown
+call DrawDown
 
-call DrawRight
-call DrawDown
-call DrawRight
-call DrawRight
-call DrawRight
-call DrawDown
+;call DrawRight
+
 
 
 MAIN ENDP
