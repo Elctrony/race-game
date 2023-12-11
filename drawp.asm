@@ -253,6 +253,8 @@ DrawDown ENDP
 
 DrawUp PROC 
 
+; cmp lastmove,2
+;    jz skipup
 jmp l32
 l31:
     call DrawRightUp
@@ -297,6 +299,8 @@ loop loop21
 sub line2y,50d
 
 mov lastmove,0
+skipup:
+
 RET
 DrawUp ENDP
 
@@ -402,19 +406,20 @@ rep STOSB
 
 
 mov line1x,15d
-mov line1y,85d
+mov line1y,15d
 mov line2x,15d
-mov line2y,85d
+mov line2y,15d
 add line2x,trackwidth
 
+;call DrawDown
+;call DrawUp
+call DrawRight
 call DrawUp
 call DrawRight
-call DrawDown
-call DrawRight
-call DrawUp
-call DrawRight
-call DrawDown
-call DrawDown
+;call DrawUp
+;call DrawRight
+;call DrawDown
+;call DrawDown
 
 ;call DrawRight
 

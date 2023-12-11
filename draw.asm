@@ -150,8 +150,8 @@ DrawRight ENDP
 
 DrawDown PROC FAR
 
-; cmp lastmove,1
-;    call DrawRightDown
+cmp lastmove,1
+   call DrawRightDown
 
 call CalcLine1Di
 mov cx,50d
