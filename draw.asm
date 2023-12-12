@@ -1,27 +1,28 @@
-.model small
+                           .model small
 .stack 64
 .data
 rightLimit equ 5
 leftLimit equ 315
-upLimit equ 20
+upLimit equ 2020
 downLimit equ 160
 ;carwidth EQU 20d
-trackwidth EQU 20
+trackwidth EQU 10d
+tracklength EQU 30d
 rectnum EQU 5
 line1x DW 10D
 line1y DW 10D
-line2x DW ? 
-line2y DW ? 
-cnt db ?
-lastmove db ?  ; 0 top 
+line2x DW 10D
+line2y DW 10D
+lastmove db 10 ; 0 top 
                ; 1 right 
                ; 2 down 
                ; 3 left
 color DB 5h
 fillColor db 7h
+cnt db 0
 ; from 1 to 3 and from 2 to 4
 .code
-generateRandom PROC FAR
+generateRandom PROC 
      mov si,200h
      looprand:  ;loop to slow down
 
@@ -50,7 +51,7 @@ CalcLine1Di PROC
 CalcLine1Di ENDP
 
 
-CalcLine2Di PROC FAR
+CalcLine2Di PROC 
    mov ax,line2y
    mov bx,320d
    mul bx
@@ -62,9 +63,10 @@ CalcLine2Di ENDP
 ; ||||||||||| END DI ||||||||||||
 
 
-DrawRightDown PROC FAR
+DrawRightDown PROC 
 
 call CalcLine1Di
+mov bx,di
 mov cx, trackwidth
 mov al,color
 rep STOSB
@@ -76,6 +78,22 @@ loop3:
    add di,320d
 loop loop3
 
+mov cnt,trackwidth
+dec cnt
+
+momoloop:
+    add bx,320d
+    mov di,bx
+    mov cx,trackwidth
+    mov al,fillColor
+    exa:
+      mov es:[di],al
+      inc di
+      loop exa
+    dec cnt
+    cmp cnt,0
+    jg momoloop
+
 mov bx,trackwidth
 add line1x,bx
 add line1y,bx
@@ -85,10 +103,10 @@ RET
 DrawRightDown ENDP
 
 
-DrawDownRight PROC FAR
+DrawDownRight PROC 
 
 call CalcLine2Di
-
+mov dx,di
 
 mov cx,trackwidth
 mov al,color
@@ -101,6 +119,22 @@ mov cx, trackwidth
 mov al,color
 rep STOSB
 
+mov cnt,trackwidth
+dec cnt
+
+lab:
+    add dx,1d
+    mov di,dx
+    mov cx,trackwidth
+    mov al,fillColor
+   loop5x:
+      mov es:[di],al
+      add di,320d
+      loop loop5x
+    dec cnt
+    cmp cnt,0
+    jne lab
+
 mov bx,trackwidth
 add line2x,bx
 add line2y,bx
@@ -109,21 +143,42 @@ add line2y,bx
 RET
 DrawDownRight ENDP
 
-DrawRight PROC FAR
+DrawRight PROC 
 
+jmp l23
+l21:
+    call DrawDownRight
+    mov lastmove,1
+    jmp l23
+l22:   
+    call DrawUpRight
+    mov lastmove,1
+    jmp l23
+
+
+mov lastmove,1
+
+l23:    
+    cmp lastmove,2
+       je l21
+    cmp lastmove,0
+       je l22
 
 
 call CalcLine1Di
 mov dx,di
-mov cx,50d
+mov cx,tracklength
 mov al, color
 rep STOSB
 
-mov cnt,19d
+add line1x,tracklength
+
+mov cnt,trackwidth
+dec cnt
 lll:
     add dx,320d
     mov di,dx
-    mov cx,50d
+    mov cx,tracklength
     mov al,fillColor
     rep STOSB
     dec cnt
@@ -131,15 +186,12 @@ lll:
     jne lll
 
 
-add line1x,50d
-
 call CalcLine2Di
-mov cx,50d
+mov cx,tracklength
 mov al,color
 rep STOSB
 
-
-add line2x,50d
+add line2x,tracklength
 
 mov lastmove,1
 
@@ -148,34 +200,191 @@ DrawRight ENDP
 ;;;;;
 
 
-DrawDown PROC FAR
+DrawDown PROC 
 
-cmp lastmove,1
-   call DrawRightDown
+
+jmp l12
+l11:
+    call DrawRightDown
+    mov lastmove,2
+
+l12:    
+   cmp lastmove,1
+       je l11
+
 
 call CalcLine1Di
-mov cx,50d
+
+mov cx,tracklength
 mov al, color
 loop1:
    mov es:[di],al
    add di,320d
 loop loop1
 
-add line1y,50d
+add line1y,tracklength
+
+
 
 call CalcLine2Di
-mov cx,50d
+mov dx,di
+mov cx,tracklength
 mov al,color
 loop2:
    mov es:[di],al
    add di,320d
 loop loop2
 
-add line2y,50d
+mov cnt,trackwidth
+dec cnt
+lxx:
+    add dx,1d
+    mov di,dx
+    mov cx,tracklength
+    mov al,fillColor
+   loop2x:
+      mov es:[di],al
+      add di,320d
+      loop loop2x
+    dec cnt
+    cmp cnt,0
+    jne lxx
+
+add line2y,tracklength
 
 mov lastmove,2
 RET
 DrawDown ENDP
+
+
+
+DrawUp PROC 
+
+jmp l32
+l31:
+    call DrawRightUp
+    mov lastmove,0
+
+l32:    
+   cmp lastmove,1
+       je l31
+call CalcLine1Di
+mov dx,di
+mov cx,tracklength
+mov al, color
+loop20:
+   mov es:[di],al
+   sub di,320d
+loop loop20
+
+mov cnt,trackwidth
+dec cnt
+
+lzz:
+    add dx,1d
+    mov di,dx
+    mov cx,tracklength
+    mov al,fillColor
+   loop3x:
+      mov es:[di],al
+      sub di,320d
+      loop loop3x
+    dec cnt
+    cmp cnt,0
+    jne lzz
+
+sub line1y,tracklength
+
+call CalcLine2Di
+mov cx,tracklength
+mov al,color
+loop21:
+   mov es:[di],al
+   sub di,320d
+loop loop21
+
+sub line2y,tracklength
+
+mov lastmove,0
+RET
+DrawUp ENDP
+
+
+DrawUpRight PROC 
+
+call CalcLine1Di
+mov dx,di
+mov cx,trackwidth
+mov al,color
+loop110:
+   mov es:[di],al
+   sub di,320d
+loop loop110
+mov cx, trackwidth
+mov al,color
+rep STOSB
+
+mov cnt,trackwidth
+dec cnt
+
+laa:
+    add dx,1d
+    mov di,dx
+    mov cx,trackwidth
+    mov al,fillColor
+   loop4x:
+      mov es:[di],al
+      sub di,320d
+      loop loop4x
+    dec cnt
+    cmp cnt,0
+    jne laa
+
+
+mov bx,trackwidth
+add line1x,bx
+sub line1y,bx
+
+RET
+DrawUpRight ENDP
+
+
+DrawRightUp PROC 
+
+
+call CalcLine2Di
+mov dx,di
+mov cx, trackwidth
+mov al,color
+rep STOSB
+
+mov cx,trackwidth
+mov al,color
+loop120:
+   mov es:[di],al
+   sub di,320d
+loop loop120
+
+mov cnt,trackwidth
+dec cnt
+
+la1:
+    sub dx,320d
+    mov di,dx
+    mov cx,trackwidth
+    mov al,fillColor
+    rep STOSB
+    dec cnt
+    cmp cnt,0
+    jne la1
+
+mov bx,trackwidth
+add line2x,bx
+sub line2y,bx
+
+RET
+DrawRightUp ENDP
+
 
 
 
@@ -206,18 +415,22 @@ rep STOSB
 
 
 mov line1x,15d
-mov line1y,15d
+mov line1y,85d
 mov line2x,15d
-mov line2y,15d
-add line2y,trackwidth
+mov line2y,85d
+add line2x,trackwidth
 
-
-call DrawRight
-
-call DrawDown
+call DrawUp
 call DrawRight
 call DrawDown
-;call DrawRightDown
+call DrawRight
+call DrawUp
+call DrawRight
+call DrawDown
+call DrawDown
+
+;call DrawRight
+
 
 
 MAIN ENDP
