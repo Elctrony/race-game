@@ -1,18 +1,20 @@
                            .model small
 .stack 64
 .data
-rightLimit equ 5
-leftLimit equ 315
-upLimit equ 2020
+leftLimit equ 5
+rightLimit equ 315
+upLimit equ 20d
 downLimit equ 160
 ;carwidth EQU 20d
 trackwidth EQU 10d
-tracklength EQU 30d
+tracklength EQU 20d
 rectnum EQU 5
 line1x DW 10D
 line1y DW 10D
 line2x DW 10D
 line2y DW 10D
+linexmax DW ?
+lineymax DW ?
 lastmove db 10 ; 0 top 
                ; 1 right 
                ; 2 down 
@@ -59,6 +61,61 @@ CalcLine2Di PROC
    mov di,ax  
    RET
 CalcLine2Di ENDP
+
+CalcXgret PROC
+   mov bx,line1x
+   mov dx,line2x
+   cmp bx,dx
+   jl lesserx
+
+      mov linexmax,bx
+      jmp xgretEnd
+   lesserx:
+      mov linexmax,dx
+
+   xgretEnd:
+   mov dx,linexmax
+   RET
+CalcXgret ENDP
+
+CalcYgret PROC
+   mov bx,line1y
+   mov dx,line2y
+   cmp bx,dx
+   jg greetery
+   
+      mov lineymax,dx
+      jmp ygretEnd
+   greetery:
+      mov lineymax,bx
+   ygretEnd:
+
+   RET
+CalcYgret ENDP
+
+CalcYlesser PROC
+   mov bx,line1y
+   mov dx,line2y
+   cmp bx,dx
+   jl lessery
+   
+      mov lineymax,dx
+      jmp ylessEnd
+   lessery:
+      mov lineymax,bx
+   ylessEnd:
+
+   RET
+CalcYlesser ENDP
+
+CalcLineMaxDi PROC 
+   mov ax,lineymax
+   mov bx,320d
+   mul bx
+   add ax,linexmax
+   mov di,ax  
+   RET
+CalcLineMaxDi ENDP
 
 ; ||||||||||| END DI ||||||||||||
 
@@ -143,6 +200,9 @@ add line2y,bx
 RET
 DrawDownRight ENDP
 
+
+;///////// Draw Right \\\\\\\\
+
 DrawRight PROC 
 
 jmp l23
@@ -158,7 +218,11 @@ l22:
 
 mov lastmove,1
 
-l23:    
+l23: 
+   call CalcXgret
+   add dx,tracklength
+   cmp dx,rightLimit
+   jg skipRight
     cmp lastmove,2
        je l21
     cmp lastmove,0
@@ -195,10 +259,16 @@ add line2x,tracklength
 
 mov lastmove,1
 
+skipRight:
+
+
 RET
 DrawRight ENDP
 ;;;;;
 
+
+
+;///////// Draw Down \\\\\\\\
 
 DrawDown PROC 
 
@@ -209,6 +279,13 @@ l11:
     mov lastmove,2
 
 l12:    
+   call CalcYgret
+   mov dx,lineymax
+   add dx,tracklength
+   cmp dx,downLimit
+   jg skipdown
+   cmp lastmove,0
+   je skipdown
    cmp lastmove,1
        je l11
 
@@ -253,10 +330,12 @@ lxx:
 add line2y,tracklength
 
 mov lastmove,2
+
+skipdown:
 RET
 DrawDown ENDP
 
-
+;///////// Draw UP \\\\\\\\
 
 DrawUp PROC 
 
@@ -265,7 +344,15 @@ l31:
     call DrawRightUp
     mov lastmove,0
 
-l32:    
+l32:  
+   call CalcYlesser
+   mov dx,lineymax
+   sub dx,tracklength
+   cmp dx,upLimit
+   jl skipup
+   cmp lastmove,2
+   je skipup
+   
    cmp lastmove,1
        je l31
 call CalcLine1Di
@@ -306,6 +393,9 @@ loop loop21
 sub line2y,tracklength
 
 mov lastmove,0
+
+skipup:
+
 RET
 DrawUp ENDP
 
@@ -402,7 +492,7 @@ mov es,ax
 mov ax,0013h; 320*200 screen
 int 10h
 ;top outline border
-mov di,1600d;row 5
+mov di,3200d;row 5
 mov al,2h
 mov cx,320
 rep STOSB
@@ -415,21 +505,36 @@ rep STOSB
 
 
 mov line1x,15d
-mov line1y,85d
+mov line1y,60d
 mov line2x,15d
-mov line2y,85d
-add line2x,trackwidth
+mov line2y,60d
+add line2y,trackwidth
 
-call DrawUp
-call DrawRight
-call DrawDown
 call DrawRight
 call DrawUp
 call DrawRight
-call DrawDown
-call DrawDown
+call DrawRight
+call DrawUp
+call DrawRight
+call DrawRight
+call DrawUp
+call DrawRight
+call DrawRight
+call DrawUp
+call DrawRight
+; call DrawRight
+; call DrawDown
+; call DrawDown
+; call DrawDown
+; call DrawDown
+; call DrawDown
+; call DrawDown
+; call DrawDown
+; call DrawDown
+; call DrawDown
+; call DrawDown
 
-;call DrawRight
+
 
 
 
